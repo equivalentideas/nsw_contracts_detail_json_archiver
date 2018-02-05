@@ -12,6 +12,7 @@ def web_archive(url)
   archive_request_response.headers[:link].split(", ")[2][/\<.*\>/].gsub(/<|>/, "")
 end
 
+puts "Getting list of archived searches from https://web.archive.org/web/timemap/json/http://tenders.nsw.gov.au/?event=public.api.contract.searc"
 timemap = JSON.parse(
   Net::HTTP.get(
     URI("https://web.archive.org/web/timemap/json/http://tenders.nsw.gov.au/?event=public.api.contract.search")
@@ -19,33 +20,33 @@ timemap = JSON.parse(
 )
 archive_times = timemap[1..-1].map { |t| t[1] }
 
-# FOR EACH IN THE TIMEMAP
 archive_times.each do |archive_timestamp|
-  return unless (ScraperWiki.select("archive_timestamp from data where archive_timestamp='#{archive_timestamp}'").empty? rescue true)
-  puts "Getting archived search data from #{archived_search_url(archive_timestamp)}"
-  archived_search_data = JSON.parse(
-    Net::HTTP.get(URI(archived_search_url(archive_timestamp)))
-  )
+  if (ScraperWiki.select("archive_timestamp from data where archive_timestamp='#{archive_timestamp}'").empty? rescue true)
+    puts "Getting archived search data from #{archived_search_url(archive_timestamp)}"
+    archived_search_data = JSON.parse(
+      Net::HTTP.get(URI(archived_search_url(archive_timestamp)))
+    )
 
-  archived_search_data["releases"].each do |release|
-    release["awards"].each do |award|
-      url = "https://tenders.nsw.gov.au/?event=public.api.contract.view&CNUUID=#{award["CNUUID"]}"
+    archived_search_data["releases"].each do |release|
+      release["awards"].each do |award|
+        url = "https://tenders.nsw.gov.au/?event=public.api.contract.view&CNUUID=#{award["CNUUID"]}"
 
-      puts "Getting contract data from #{url}"
+        puts "Getting contract data from #{url}"
 
-      record = {
-        scraped_at: Date.today.to_s,
-        web_archive_url: web_archive(url),
-        CNUUID: award["CNUUID"],
-        ocid: release["ocid"],
-        data_blob: Net::HTTP.get(URI(url)),
-        archive_timestamp: archive_timestamp
-      }
+        record = {
+          scraped_at: Date.today.to_s,
+          web_archive_url: web_archive(url),
+          CNUUID: award["CNUUID"],
+          ocid: release["ocid"],
+          data_blob: Net::HTTP.get(URI(url)),
+          archive_timestamp: archive_timestamp
+        }
 
-      puts "Saving contract data from #{url}"
-      ScraperWiki.save_sqlite([:CNUUID, :archive_timestamp], record)
+        puts "Saving contract data from #{url}"
+        ScraperWiki.save_sqlite([:CNUUID, :archive_timestamp], record)
 
-      sleep 3
+        sleep 3
+      end
     end
   end
 end

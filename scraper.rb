@@ -21,7 +21,7 @@ archive_times = timemap[1..-1].map { |t| t[1] }
 
 # FOR EACH IN THE TIMEMAP
 archive_times.each do |archive_timestamp|
-  return if (ScraperWiki.select("archive_timestamp from data where archive_timestamp='#{archive_timestamp}'").empty? rescue false)
+  return unless (ScraperWiki.select("archive_timestamp from data where archive_timestamp='#{archive_timestamp}'").empty? rescue true)
   puts "Getting archived search data from #{archived_search_url(archive_timestamp)}"
   archived_search_data = JSON.parse(
     Net::HTTP.get(URI(archived_search_url(archive_timestamp)))

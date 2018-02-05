@@ -10,13 +10,18 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    coderay (1.1.2)
     domain_name (0.5.24)
       unf (>= 0.0.5, < 1.0.0)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     httpclient (2.6.0.1)
+    method_source (0.9.0)
     mime-types (2.5)
     netrc (0.11.0)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
@@ -32,6 +37,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pry
   rest-client
   scraperwiki!
 

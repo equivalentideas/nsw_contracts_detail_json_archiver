@@ -38,12 +38,11 @@ def record_release(release, archive_timestamp)
   end
 end
 
-puts "Getting list of archived searches from https://web.archive.org/web/timemap/json/http://tenders.nsw.gov.au/?event=public.api.contract.searc"
-timemap = JSON.parse(
-  Net::HTTP.get(
-    URI("https://web.archive.org/web/timemap/json/http://tenders.nsw.gov.au/?event=public.api.contract.search")
-  )
-)
+timemap_url = "https://web.archive.org/web/timemap/json/http://tenders.nsw.gov.au/?event=public.api.contract.search"
+
+puts "Getting list of archived searches from #{timemap_url}"
+timemap = JSON.parse(Net::HTTP.get(URI(timemap_url)))
+
 archive_times = timemap[1..-1].map { |t| t[1] }
 
 archive_times.each do |archive_timestamp|

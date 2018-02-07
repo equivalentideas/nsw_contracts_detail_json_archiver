@@ -1,7 +1,6 @@
 require 'rest-client'
 require 'scraperwiki'
 require 'json'
-require 'net/http'
 
 def archived_search_url(timestring)
   "https://web.archive.org/web/#{timestring}/https://tenders.nsw.gov.au/?event=public.api.contract.search"
@@ -27,7 +26,7 @@ def record_release(release, archive_timestamp)
       web_archive_url: web_archive(url),
       CNUUID: award["CNUUID"],
       ocid: release["ocid"],
-      data_blob: Net::HTTP.get(URI(url)),
+      data_blob: RestClient.get(url).body,
       archive_timestamp: archive_timestamp
     }
 
@@ -41,7 +40,7 @@ end
 timemap_url = "https://web.archive.org/web/timemap/json/http://tenders.nsw.gov.au/?event=public.api.contract.search"
 
 puts "Getting list of archived searches from #{timemap_url}"
-timemap = JSON.parse(Net::HTTP.get(URI(timemap_url)))
+timemap = JSON.parse(RestClient.get(timemap_url).body)
 
 archive_times = timemap[1..-1].map { |t| t[1] }
 
